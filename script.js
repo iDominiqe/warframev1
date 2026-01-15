@@ -1,12 +1,86 @@
+/* =================================================
+   THREE.JS — 3D EARTH
+================================================= */
+
+const canvas = document.getElementById("bg");
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera(
+  45,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+camera.position.set(0, 0, 3);
+
+const renderer = new THREE.WebGLRenderer({
+  canvas,
+  antialias: true,
+  alpha: true
+});
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+
+/* Controls (Google Maps style) */
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.enablePan = false;
+controls.minDistance = 2;
+controls.maxDistance = 6;
+
+/* Lights */
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+scene.add(ambientLight);
+
+const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+sunLight.position.set(5, 0, 5);
+scene.add(sunLight);
+
+/* Earth */
+const loader = new THREE.TextureLoader();
+
+const earth = new THREE.Mesh(
+  new THREE.SphereGeometry(1, 64, 64),
+  new THREE.MeshStandardMaterial({
+    map: loader.load(
+      "https://raw.githubusercontent.com/visualizedata/threear/examples/images/earthmap1k.jpg"
+    ),
+    emissiveMap: loader.load(
+      "https://raw.githubusercontent.com/visualizedata/threear/examples/images/earthlights1k.jpg"
+    ),
+    emissiveIntensity: 0.5
+  })
+);
+
+scene.add(earth);
+
+/* Animation loop */
+function animate() {
+  requestAnimationFrame(animate);
+  earth.rotation.y += 0.0004;
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+
+/* Resize */
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* =================================================
+   WARFRAME DAY / NIGHT TIMER
+================================================= */
+
 const timeNowEl = document.getElementById("timeNow");
 const phaseEl = document.getElementById("phase");
 const nextChangeEl = document.getElementById("nextChange");
 const sourceEl = document.getElementById("source");
 
-/* ===============================
-   SOURCES (priority order)
-================================ */
-
+/* API Sources */
 const SOURCES = [
   {
     name: "WarframeStat API",
@@ -23,7 +97,6 @@ const SOURCES = [
       const cetus = data.SyndicateMissions.find(
         m => m.Tag === "CetusSyndicate"
       );
-
       return {
         isDay: cetus.Nodes.includes("Day"),
         expiry: new Date(cetus.Expiry.$date)
@@ -32,10 +105,7 @@ const SOURCES = [
   }
 ];
 
-/* ===============================
-   LOCAL FALLBACK (never fails)
-================================ */
-
+/* Local fallback (never fails) */
 const CYCLE_MS = 8 * 60 * 1000;
 const DAY_MS = 4 * 60 * 1000;
 const REFERENCE = new Date("2024-01-01T00:00:00Z").getTime();
@@ -43,7 +113,6 @@ const REFERENCE = new Date("2024-01-01T00:00:00Z").getTime();
 function localCycle() {
   const now = Date.now();
   const elapsed = (now - REFERENCE) % CYCLE_MS;
-
   const isDay = elapsed < DAY_MS;
   const remaining = (isDay ? DAY_MS : CYCLE_MS) - elapsed;
 
@@ -53,10 +122,6 @@ function localCycle() {
     source: "Local Calculation"
   };
 }
-
-/* ===============================
-   FETCH WITH FALLBACK
-================================ */
 
 async function fetchCycleData() {
   for (const source of SOURCES) {
@@ -71,18 +136,14 @@ async function fetchCycleData() {
       const parsed = source.parser(data);
 
       return { ...parsed, source: source.name };
-    } catch (err) {
-      console.warn(`Source failed: ${source.name}`, err);
+    } catch {
+      continue;
     }
   }
-
   return localCycle();
 }
 
-/* ===============================
-   UI UPDATE
-================================ */
-
+/* UI update */
 async function updateUI() {
   const now = new Date();
   timeNowEl.textContent =
@@ -102,6 +163,10 @@ async function updateUI() {
 
   sourceEl.textContent =
     "Source: " + cycle.source;
+
+  /* Link Warframe cycle to lighting */
+  sunLight.intensity = cycle.isDay ? 1.2 : 0.2;
+  earth.material.emissiveIntensity = cycle.isDay ? 0.2 : 0.9;
 }
 
 updateUI();
