@@ -12,25 +12,14 @@ body {
   overflow: hidden;
 }
 
-.planet-bg {
+/* Three.js canvas */
+#bg {
   position: fixed;
   inset: 0;
-  background-image: url("https://images.unsplash.com/photo-1446776811953-b23d57bd21aa");
-  background-size: cover;
-  background-position: center;
-  animation: slowRotate 60s linear infinite;
-  filter: brightness(0.7);
+  z-index: -1;
 }
 
-@keyframes slowRotate {
-  from {
-    transform: scale(1.1) rotate(0deg);
-  }
-  to {
-    transform: scale(1.1) rotate(360deg);
-  }
-}
-
+/* UI Panel */
 .timer-container {
   position: absolute;
   top: 50%;
