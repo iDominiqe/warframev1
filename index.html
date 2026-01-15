@@ -2,18 +2,25 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Warframe Earth Cycle Timer</title>
+  <title>Warframe Earth Cycle</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <link rel="stylesheet" href="style.css" />
+
+  <!-- Three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
 
-  <div class="planet-bg"></div>
+  <!-- 3D Background -->
+  <canvas id="bg"></canvas>
 
+  <!-- UI -->
   <div class="timer-container">
     <h1>Warframe Earth Cycle</h1>
 
-    <div id="timeNow">Current Time: --:--:--</div>
+    <div id="timeNow">Current Time: --</div>
     <div id="phase">Current Phase: --</div>
     <div id="nextChange">Next Change In: --</div>
 
