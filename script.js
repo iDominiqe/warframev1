@@ -1,6 +1,9 @@
 /* =================================================
-   THREE.JS — 3D EARTH
+   THREE.JS (ES MODULES)
 ================================================= */
+
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.module.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.158.0/examples/jsm/controls/OrbitControls.js";
 
 const canvas = document.getElementById("bg");
 
@@ -22,8 +25,8 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(window.devicePixelRatio);
 
-/* Controls (Google Maps style) */
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
+/* Controls */
+const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
 controls.enablePan = false;
 controls.minDistance = 2;
@@ -89,23 +92,10 @@ const SOURCES = [
       isDay: data.isDay,
       expiry: new Date(data.expiry)
     })
-  },
-  {
-    name: "GitHub RAW",
-    url: "https://raw.githubusercontent.com/WFCD/warframe-worldstate-parser/master/data/pc.json",
-    parser: data => {
-      const cetus = data.SyndicateMissions.find(
-        m => m.Tag === "CetusSyndicate"
-      );
-      return {
-        isDay: cetus.Nodes.includes("Day"),
-        expiry: new Date(cetus.Expiry.$date)
-      };
-    }
   }
 ];
 
-/* Local fallback (never fails) */
+/* Local fallback */
 const CYCLE_MS = 8 * 60 * 1000;
 const DAY_MS = 4 * 60 * 1000;
 const REFERENCE = new Date("2024-01-01T00:00:00Z").getTime();
@@ -127,14 +117,8 @@ async function fetchCycleData() {
   for (const source of SOURCES) {
     try {
       const res = await fetch(source.url, { cache: "no-store" });
-      if (!res.ok) throw new Error("HTTP error");
-
-      const text = await res.text();
-      if (!text) throw new Error("Empty response");
-
-      const data = JSON.parse(text);
+      const data = await res.json();
       const parsed = source.parser(data);
-
       return { ...parsed, source: source.name };
     } catch {
       continue;
@@ -164,7 +148,7 @@ async function updateUI() {
   sourceEl.textContent =
     "Source: " + cycle.source;
 
-  /* Link Warframe cycle to lighting */
+  /* Lighting sync */
   sunLight.intensity = cycle.isDay ? 1.2 : 0.2;
   earth.material.emissiveIntensity = cycle.isDay ? 0.2 : 0.9;
 }
