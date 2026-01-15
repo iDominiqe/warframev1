@@ -1,0 +1,60 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  font-family: "Segoe UI", Arial, sans-serif;
+  color: white;
+  background: black;
+  overflow: hidden;
+}
+
+.planet-bg {
+  position: fixed;
+  inset: 0;
+  background-image: url("https://images.unsplash.com/photo-1446776811953-b23d57bd21aa");
+  background-size: cover;
+  background-position: center;
+  animation: slowRotate 60s linear infinite;
+  filter: brightness(0.7);
+}
+
+@keyframes slowRotate {
+  from {
+    transform: scale(1.1) rotate(0deg);
+  }
+  to {
+    transform: scale(1.1) rotate(360deg);
+  }
+}
+
+.timer-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.6);
+  padding: 30px 40px;
+  border-radius: 16px;
+  text-align: center;
+  backdrop-filter: blur(6px);
+  min-width: 300px;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+.timer-container div {
+  margin: 8px 0;
+  font-size: 18px;
+}
+
+.source {
+  margin-top: 15px;
+  font-size: 12px;
+  opacity: 0.7;
+}
