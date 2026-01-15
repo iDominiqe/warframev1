@@ -12,14 +12,12 @@ body {
   overflow: hidden;
 }
 
-/* Three.js canvas */
 #bg {
   position: fixed;
   inset: 0;
   z-index: -1;
 }
 
-/* UI Panel */
 .timer-container {
   position: absolute;
   top: 50%;
